@@ -7,6 +7,7 @@ import { authRoutes } from "../modules/auth/routes.js";
 import { dashboardRoutes } from "../modules/dashboard/routes.js";
 import { eventsRoutes } from "../modules/events/routes.js";
 import { productsRoutes } from "../modules/products/routes.js";
+import { simulatorRoutes } from "../modules/simulator/routes.js";
 import { transactionRoutes } from "../modules/transaction/routes.js";
 import { sendSuccess } from "../shared/api-response.js";
 
@@ -30,6 +31,7 @@ export function createApp() {
   api.use("/auth", authRoutes);
   api.use("/products", productsRoutes);
   api.use("/events", eventsRoutes);
+  api.use("/simulator", simulatorRoutes);
   api.use("/transactions", transactionRoutes);
   api.use("/dashboard", dashboardRoutes);
   app.use("/api/v1", api);

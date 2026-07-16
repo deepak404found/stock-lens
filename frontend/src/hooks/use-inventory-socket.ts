@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { createInventorySocket } from "@/lib/socket";
 import type { FailedEventPayload, ProcessedEventPayload } from "@/types/inventory";
 import { DASHBOARD_QUERY_KEY } from "@/hooks/use-dashboard";
+import { TRANSACTIONS_QUERY_KEY } from "@/hooks/use-transactions";
 
 type SocketHandlers = {
   onProcessed?: (payload: ProcessedEventPayload) => void;
@@ -28,6 +29,7 @@ export function useInventorySocket(handlers?: SocketHandlers | ((payload: Proces
 
     socket.on("inventory.event.processed", (payload: ProcessedEventPayload) => {
       void queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: ["product-batches"] });
       handlersRef.current.onProcessed?.(payload);
     });

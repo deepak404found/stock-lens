@@ -1,18 +1,25 @@
 import { formatMoney } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { DashboardData } from "@/types/inventory";
 
 type ProductStockTableProps = {
   rows: DashboardData["productStock"];
+  selectedProductId?: string | null;
+  onSelectProduct?: (productId: string) => void;
 };
 
-export function ProductStockTable({ rows }: ProductStockTableProps) {
+export function ProductStockTable({
+  rows,
+  selectedProductId,
+  onSelectProduct,
+}: ProductStockTableProps) {
   return (
     <div className="flex h-full flex-col rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-bold text-slate-900">Current Product Stock</h3>
           <p className="text-xs text-slate-500">
-            Live warehouse on-hand quantities with FIFO value indicators
+            Click a row to inspect its FIFO inventory layers
           </p>
         </div>
         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-800 uppercase">
@@ -51,8 +58,16 @@ export function ProductStockTable({ rows }: ProductStockTableProps) {
             ) : (
               rows.map((row) => {
                 const inStock = row.quantity > 0;
+                const selected = row.productId === selectedProductId;
                 return (
-                  <tr key={row.productId} className="hover:bg-slate-50/80">
+                  <tr
+                    key={row.productId}
+                    onClick={() => onSelectProduct?.(row.productId)}
+                    className={cn(
+                      "cursor-pointer transition hover:bg-slate-50/80",
+                      selected && "bg-brand-50/70 hover:bg-brand-50",
+                    )}
+                  >
                     <td className="px-6 py-4 font-mono text-xs font-semibold text-slate-700">
                       {row.sku}
                     </td>

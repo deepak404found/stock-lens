@@ -30,3 +30,18 @@ export function emitInventoryEventFailed(payload: InventoryEventFailedPayload): 
   if (!io) return;
   io.emit("inventory.event.failed", payload);
 }
+
+export type SimulatorStatusPayload = {
+  status: "running" | "stopped" | "completed";
+  mode: "burst";
+  published: number;
+  total: number;
+  startedAt: string;
+  finishedAt?: string;
+};
+
+export function emitSimulatorStatus(payload: SimulatorStatusPayload): void {
+  const io = getSocketServer();
+  if (!io) return;
+  io.emit("simulator.status", payload);
+}
