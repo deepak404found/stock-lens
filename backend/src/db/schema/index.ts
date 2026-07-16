@@ -41,6 +41,10 @@ export const products = pgTable("products", {
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   imageUrl: text("image_url"),
+  /** Suggested unit cost when publishing PURCHASE events */
+  purchasePrice: numeric("purchase_price", { precision: 12, scale: 2 }).notNull().default("0"),
+  /** Suggested MRP / list price when publishing SALE events */
+  mrp: numeric("mrp", { precision: 12, scale: 2 }).notNull().default("0"),
   status: productStatusEnum("status").notNull().default("active"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

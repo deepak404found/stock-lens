@@ -1,7 +1,7 @@
 import type { EachMessagePayload } from "kafkajs";
 import { logger } from "../../config/logger.js";
 import { InsufficientStockError } from "../../shared/errors.js";
-import { emitInventoryEventProcessed } from "../../websocket/events.js";
+import { emitInventoryEventFailed, emitInventoryEventProcessed } from "../../websocket/events.js";
 import type { InventoryEventPayload } from "../kafka/types.js";
 import { fifoService } from "./fifo.service.js";
 import { inventoryRepository } from "./inventory.repository.js";
@@ -16,11 +16,15 @@ function parsePayload(message: EachMessagePayload): InventoryEventPayload | null
       !parsed.eventId ||
       !parsed.eventType ||
       !parsed.productId ||
-      typeof parsed.quantity !== "number" ||
-      typeof parsed.unitPrice !== "number"
+      typeof parsed.quantity !== "number"
     ) {
       return null;
     }
+
+    if (parsed.eventType === "PURCHASE" && typeof parsed.unitPrice !== "number") {
+      return null;
+    }
+
     return parsed;
   } catch {
     return null;
@@ -59,7 +63,7 @@ export class EventProcessorService {
         fifoCost: result.fifoCost,
         productId: event.productId,
         quantity: event.quantity,
-        unitPrice: event.unitPrice,
+        unitPrice: result.unitPrice,
       });
 
       logger.info(
@@ -70,6 +74,13 @@ export class EventProcessorService {
       await inventoryRepository.updateEventStatus(event.eventId, "failed", new Date());
 
       if (error instanceof InsufficientStockError) {
+        emitInventoryEventFailed({
+          eventId: event.eventId,
+          eventType: event.eventType,
+          productId: event.productId,
+          quantity: event.quantity,
+          reason: error.message,
+        });
         logger.warn(
           { eventId: event.eventId, err: error.message },
           "Event failed: insufficient stock",

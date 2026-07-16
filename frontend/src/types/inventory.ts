@@ -7,6 +7,8 @@ export type Product = {
   name: string;
   description: string | null;
   imageUrl: string | null;
+  purchasePrice: string;
+  mrp: string;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -53,4 +55,12 @@ export type ProcessedEventPayload = {
   productId: string;
   quantity: number;
   unitPrice: number;
+};
+
+export type FailedEventPayload = {
+  eventId: string;
+  eventType: EventType;
+  productId: string;
+  quantity: number;
+  reason: string;
 };

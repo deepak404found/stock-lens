@@ -12,6 +12,7 @@ export type FifoProcessResult = {
   eventType: InventoryEventPayload["eventType"];
   transactionId: string;
   fifoCost: string | null;
+  unitPrice: number;
   batchId?: string;
 };
 
@@ -19,6 +20,10 @@ export class FifoService {
   async processEvent(payload: InventoryEventPayload): Promise<FifoProcessResult> {
     return db.transaction(async (tx) => {
       if (payload.eventType === "PURCHASE") {
+        if (payload.unitPrice === undefined || payload.unitPrice <= 0) {
+          throw new Error("Purchase events require a positive unitPrice");
+        }
+
         const batchNumber = `BATCH-${payload.eventId.slice(0, 8).toUpperCase()}`;
         const batch = await inventoryRepository.createBatch(
           {
@@ -49,6 +54,7 @@ export class FifoService {
           transactionId: transaction.id,
           batchId: batch.id,
           fifoCost: null,
+          unitPrice: payload.unitPrice,
         };
       }
 
@@ -62,18 +68,13 @@ export class FifoService {
       const batches = await inventoryRepository.getBatchesFifo(payload.productId, tx);
       let remainingToSell = payload.quantity;
       let totalFifoCost = 0;
-
-      const transaction = await inventoryRepository.createTransaction(
-        {
-          productId: payload.productId,
-          eventType: "SALE",
-          quantity: payload.quantity,
-          unitPrice: toMoney(payload.unitPrice),
-          fifoCost: null,
-          referenceNumber: payload.eventId,
-        },
-        tx,
-      );
+      const consumptions: Array<{
+        batchId: string;
+        quantityConsumed: number;
+        unitPrice: number;
+        cost: number;
+        newRemaining: number;
+      }> = [];
 
       for (const batch of batches) {
         if (remainingToSell <= 0) break;
@@ -82,34 +83,51 @@ export class FifoService {
         const unitPrice = Number(batch.purchasePrice);
         const cost = consumeQty * unitPrice;
         totalFifoCost += cost;
-
-        await inventoryRepository.createFifoConsumption(
-          {
-            transactionId: transaction.id,
-            batchId: batch.id,
-            quantityConsumed: consumeQty,
-            unitPrice: toMoney(unitPrice),
-            cost: toMoney(cost),
-          },
-          tx,
-        );
-
-        await inventoryRepository.updateBatchRemaining(
-          batch.id,
-          batch.remainingQuantity - consumeQty,
-          tx,
-        );
+        consumptions.push({
+          batchId: batch.id,
+          quantityConsumed: consumeQty,
+          unitPrice,
+          cost,
+          newRemaining: batch.remainingQuantity - consumeQty,
+        });
         remainingToSell -= consumeQty;
       }
 
       const fifoCost = toMoney(totalFifoCost);
-      await inventoryRepository.updateTransactionFifoCost(transaction.id, fifoCost, tx);
+      const avgUnitCost = Number((totalFifoCost / payload.quantity).toFixed(2));
+
+      const transaction = await inventoryRepository.createTransaction(
+        {
+          productId: payload.productId,
+          eventType: "SALE",
+          quantity: payload.quantity,
+          unitPrice: toMoney(avgUnitCost),
+          fifoCost,
+          referenceNumber: payload.eventId,
+        },
+        tx,
+      );
+
+      for (const line of consumptions) {
+        await inventoryRepository.createFifoConsumption(
+          {
+            transactionId: transaction.id,
+            batchId: line.batchId,
+            quantityConsumed: line.quantityConsumed,
+            unitPrice: toMoney(line.unitPrice),
+            cost: toMoney(line.cost),
+          },
+          tx,
+        );
+        await inventoryRepository.updateBatchRemaining(line.batchId, line.newRemaining, tx);
+      }
 
       return {
         eventId: payload.eventId,
         eventType: payload.eventType,
         transactionId: transaction.id,
         fifoCost,
+        unitPrice: avgUnitCost,
       };
     });
   }

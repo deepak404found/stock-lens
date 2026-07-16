@@ -5,6 +5,7 @@ export type InventoryEventPayload = {
   eventType: InventoryEventType;
   productId: string;
   quantity: number;
-  unitPrice: number;
+  /** Present only for PURCHASE events. Sales omit this — FIFO calculates cost. */
+  unitPrice?: number;
   publishedAt: string;
 };

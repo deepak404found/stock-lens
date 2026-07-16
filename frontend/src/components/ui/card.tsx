@@ -8,24 +8,29 @@ type CardProps = {
 
 export function Card({ children, className }: CardProps) {
   return (
-    <div className={cn("rounded-xl border border-stone-200/80 bg-white/90 shadow-sm", className)}>
+    <div
+      className={cn(
+        "rounded-2xl border border-slate-100 bg-white shadow-sm transition duration-200 hover:shadow-md",
+        className,
+      )}
+    >
       {children}
     </div>
   );
 }
 
 export function CardHeader({ children, className }: CardProps) {
-  return <div className={cn("border-b border-stone-100 px-5 py-4", className)}>{children}</div>;
+  return <div className={cn("px-6 pt-6", className)}>{children}</div>;
 }
 
 export function CardTitle({ children, className }: CardProps) {
-  return <h2 className={cn("text-lg font-semibold text-stone-900", className)}>{children}</h2>;
+  return <h2 className={cn("text-lg font-bold text-slate-900", className)}>{children}</h2>;
 }
 
 export function CardDescription({ children, className }: CardProps) {
-  return <p className={cn("mt-1 text-sm text-stone-500", className)}>{children}</p>;
+  return <p className={cn("mt-0.5 text-xs text-slate-500", className)}>{children}</p>;
 }
 
 export function CardContent({ children, className }: CardProps) {
-  return <div className={cn("px-5 py-4", className)}>{children}</div>;
+  return <div className={cn("px-6 py-5", className)}>{children}</div>;
 }

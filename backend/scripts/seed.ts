@@ -11,6 +11,8 @@ const seedProducts = [
     name: "Industrial Sensor Kit",
     description: "Multi-sensor pack for warehouse monitoring",
     barcode: "8901001001001",
+    purchasePrice: "100.00",
+    mrp: "150.00",
     status: "active" as const,
   },
   {
@@ -18,6 +20,8 @@ const seedProducts = [
     name: "Smart Label Roll",
     description: "RFID-ready labels, 1000 count",
     barcode: "8901001001002",
+    purchasePrice: "120.00",
+    mrp: "150.00",
     status: "active" as const,
   },
   {
@@ -25,6 +29,8 @@ const seedProducts = [
     name: "Handheld Scanner",
     description: "Bluetooth barcode scanner",
     barcode: "8901001001003",
+    purchasePrice: "180.00",
+    mrp: "220.00",
     status: "active" as const,
   },
 ];
@@ -71,6 +77,8 @@ async function seed() {
           name: product.name,
           description: product.description,
           barcode: product.barcode,
+          purchasePrice: product.purchasePrice,
+          mrp: product.mrp,
           status: product.status,
           updatedAt: new Date(),
         })

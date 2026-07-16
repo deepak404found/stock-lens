@@ -71,12 +71,16 @@ async function main() {
   }
   const productId = products[0].id;
 
-  const publish = async (eventType: "PURCHASE" | "SALE", quantity: number, unitPrice: number) => {
+  const publish = async (eventType: "PURCHASE" | "SALE", quantity: number, unitPrice?: number) => {
+    const body =
+      eventType === "PURCHASE"
+        ? { eventType, productId, quantity, unitPrice }
+        : { eventType, productId, quantity };
     const res = await request(
       "/api/v1/events",
       {
         method: "POST",
-        body: JSON.stringify({ eventType, productId, quantity, unitPrice }),
+        body: JSON.stringify(body),
       },
       cookie,
     );
@@ -89,7 +93,7 @@ async function main() {
   console.log("Publishing PRD FIFO scenario...");
   await publish("PURCHASE", 50, 100);
   await publish("PURCHASE", 30, 120);
-  await publish("SALE", 60, 150);
+  await publish("SALE", 60);
 
   const transactions = await waitForTransactions(3, cookie);
   const sale = (transactions as { eventType: string; fifoCost: string }[]).find(

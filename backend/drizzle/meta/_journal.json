@@ -8,6 +8,13 @@
       "when": 1784215825915,
       "tag": "0000_illegal_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784224439395,
+      "tag": "0001_slippery_silver_fox",
+      "breakpoints": true
     }
   ]
 }

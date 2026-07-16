@@ -1,15 +1,17 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { ProcessedEventPayload } from "@/types/inventory";
+import type { EventType, FailedEventPayload, ProcessedEventPayload } from "@/types/inventory";
 
 export type ActivityItem = {
   id: string;
-  eventType: ProcessedEventPayload["eventType"];
+  status: "processed" | "failed";
+  eventType: EventType;
   productId: string;
   quantity: number;
-  unitPrice: number;
-  fifoCost: string | null;
+  unitPrice?: number;
+  fifoCost?: string | null;
+  reason?: string;
   receivedAt: Date;
 };
 
@@ -21,6 +23,7 @@ export function useLiveActivity() {
       [
         {
           id: payload.eventId,
+          status: "processed" as const,
           eventType: payload.eventType,
           productId: payload.productId,
           quantity: payload.quantity,
@@ -33,5 +36,22 @@ export function useLiveActivity() {
     );
   }, []);
 
-  return { items, addProcessedEvent };
+  const addFailedEvent = useCallback((payload: FailedEventPayload) => {
+    setItems((prev) =>
+      [
+        {
+          id: payload.eventId,
+          status: "failed" as const,
+          eventType: payload.eventType,
+          productId: payload.productId,
+          quantity: payload.quantity,
+          reason: payload.reason,
+          receivedAt: new Date(),
+        },
+        ...prev,
+      ].slice(0, 25),
+    );
+  }, []);
+
+  return { items, addProcessedEvent, addFailedEvent };
 }

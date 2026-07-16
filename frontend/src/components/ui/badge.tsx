@@ -7,8 +7,8 @@ const badgeVariants = cva("inline-flex items-center rounded-full px-2.5 py-0.5 t
     variant: {
       purchase: "bg-emerald-100 text-emerald-800",
       sale: "bg-amber-100 text-amber-900",
-      live: "bg-teal-100 text-teal-900",
-      offline: "bg-stone-200 text-stone-700",
+      live: "bg-emerald-50 text-emerald-700",
+      offline: "bg-slate-200 text-slate-700",
     },
   },
   defaultVariants: {

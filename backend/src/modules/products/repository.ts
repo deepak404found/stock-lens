@@ -12,6 +12,8 @@ export class ProductsRepository {
         name: products.name,
         description: products.description,
         imageUrl: products.imageUrl,
+        purchasePrice: products.purchasePrice,
+        mrp: products.mrp,
         status: products.status,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
@@ -19,6 +21,20 @@ export class ProductsRepository {
       .from(products)
       .where(eq(products.status, "active"))
       .orderBy(asc(products.sku));
+  }
+
+  async findActiveById(productId: string) {
+    const [product] = await db
+      .select({
+        id: products.id,
+        sku: products.sku,
+        status: products.status,
+      })
+      .from(products)
+      .where(eq(products.id, productId))
+      .limit(1);
+    if (!product || product.status !== "active") return null;
+    return product;
   }
 }
 

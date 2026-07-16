@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { NotFoundError } from "../../shared/errors.js";
+import { InsufficientStockError, NotFoundError } from "../../shared/errors.js";
+import { inventoryRepository } from "../inventory/inventory.repository.js";
 import { publishInventoryEvent } from "../kafka/producer.js";
 import type { InventoryEventPayload } from "../kafka/types.js";
 import { eventsRepository } from "./repository.js";
@@ -12,14 +13,23 @@ export class EventsService {
       throw new NotFoundError("Product not found");
     }
 
+    if (input.eventType === "SALE") {
+      const available = await inventoryRepository.getAvailableStock(input.productId);
+      if (available < input.quantity) {
+        throw new InsufficientStockError(
+          `Insufficient stock: requested ${input.quantity}, available ${available}`,
+        );
+      }
+    }
+
     const eventId = randomUUID();
     const payload: InventoryEventPayload = {
       eventId,
       eventType: input.eventType,
       productId: input.productId,
       quantity: input.quantity,
-      unitPrice: input.unitPrice,
       publishedAt: new Date().toISOString(),
+      ...(input.eventType === "PURCHASE" ? { unitPrice: input.unitPrice } : {}),
     };
 
     await eventsRepository.createPending({
