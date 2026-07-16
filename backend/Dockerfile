@@ -3,10 +3,13 @@ RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
 WORKDIR /app
 
 FROM base AS deps
+# Skip husky prepare (is-ci) during image builds
+ENV CI=true
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 FROM base AS build
+ENV CI=true
 COPY package.json pnpm-lock.yaml ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY tsconfig.json tsconfig.build.json ./
