@@ -8,10 +8,8 @@ Purchase and sale events flow through Kafka → a consumer applies FIFO valuatio
 
 | Service | URL |
 |---|---|
-| **Frontend** | `https://YOUR-FRONTEND-URL` |
-| **Backend API** | `https://YOUR-BACKEND-URL` |
-
-> Replace the placeholders above with your deployed URLs.
+| **Frontend** | https://stock-lens-tau.vercel.app/ |
+| **Backend API** | https://stock-lens-6r4f.onrender.com |
 
 ## What it does
 
