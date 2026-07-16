@@ -13,6 +13,7 @@ export function useSession() {
   const meQuery = useQuery({
     queryKey: AUTH_ME_QUERY_KEY,
     queryFn: getMe,
+    retry: false,
   });
 
   useEffect(() => {

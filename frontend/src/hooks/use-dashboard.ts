@@ -5,9 +5,11 @@ import { getDashboard } from "@/services/dashboard";
 
 export const DASHBOARD_QUERY_KEY = ["dashboard"] as const;
 
-export function useDashboard() {
+export function useDashboard(enabled = true) {
   return useQuery({
     queryKey: DASHBOARD_QUERY_KEY,
     queryFn: getDashboard,
+    enabled,
+    retry: false,
   });
 }

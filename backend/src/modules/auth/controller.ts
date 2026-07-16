@@ -6,11 +6,12 @@ import { authService } from "./service.js";
 import type { LoginInput } from "./validation.js";
 
 function cookieOptions() {
+  const isProd = env.NODE_ENV === "production";
   return {
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    secure: isProd,
+    // Cross-site FE (Vercel) → BE (Render) requires None; local same-site uses Lax
+    sameSite: (isProd ? "none" : "lax") as "none" | "lax",
     path: "/",
   };
 }
@@ -18,17 +19,15 @@ function cookieOptions() {
 export class AuthController {
   login = async (req: Request, res: Response) => {
     const result = await authService.login(req.body as LoginInput);
-    res.cookie(env.COOKIE_NAME, result.token, cookieOptions());
+    res.cookie(env.COOKIE_NAME, result.token, {
+      ...cookieOptions(),
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     return sendSuccess(res, { user: result.user }, "Login successful");
   };
 
   logout = async (_req: Request, res: Response) => {
-    res.clearCookie(env.COOKIE_NAME, {
-      httpOnly: true,
-      secure: env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-    });
+    res.clearCookie(env.COOKIE_NAME, cookieOptions());
     return sendSuccess(res, null, "Logout successful");
   };
 

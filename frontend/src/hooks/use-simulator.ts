@@ -19,7 +19,7 @@ const idleStatus: SimulatorStatus = {
   startedAt: new Date(0).toISOString(),
 };
 
-export function useSimulator() {
+export function useSimulator(enabled = true) {
   const [status, setStatus] = useState<SimulatorStatus>(idleStatus);
   const [error, setError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
@@ -28,6 +28,8 @@ export function useSimulator() {
   const isRunning = status.status === "running";
 
   useEffect(() => {
+    if (!enabled) return;
+
     void getSimulatorStatus()
       .then(setStatus)
       .catch(() => {
@@ -43,7 +45,7 @@ export function useSimulator() {
       socket.off("simulator.status");
       socket.disconnect();
     };
-  }, []);
+  }, [enabled]);
 
   const start = useCallback(async (input: StartSimulatorInput) => {
     setError(null);

@@ -12,7 +12,10 @@ type SocketHandlers = {
   onFailed?: (payload: FailedEventPayload) => void;
 };
 
-export function useInventorySocket(handlers?: SocketHandlers | ((payload: ProcessedEventPayload) => void)) {
+export function useInventorySocket(
+  handlers?: SocketHandlers | ((payload: ProcessedEventPayload) => void),
+  enabled = true,
+) {
   const queryClient = useQueryClient();
   const handlersRef = useRef<SocketHandlers>({});
 
@@ -25,6 +28,8 @@ export function useInventorySocket(handlers?: SocketHandlers | ((payload: Proces
   }, [handlers]);
 
   useEffect(() => {
+    if (!enabled) return;
+
     const socket = createInventorySocket();
 
     socket.on("inventory.event.processed", (payload: ProcessedEventPayload) => {
@@ -41,5 +46,5 @@ export function useInventorySocket(handlers?: SocketHandlers | ((payload: Proces
     return () => {
       socket.disconnect();
     };
-  }, [queryClient]);
+  }, [queryClient, enabled]);
 }

@@ -18,15 +18,16 @@ import { useTransactions } from "@/hooks/use-transactions";
 
 export function DashboardView() {
   const { user, isLoading: sessionLoading, logout } = useSession();
-  const dashboardQuery = useDashboard();
+  const isAuthed = Boolean(user);
+  const dashboardQuery = useDashboard(isAuthed);
   const { items: liveItems, addProcessedEvent, addFailedEvent } = useLiveActivity();
-  const simulator = useSimulator();
+  const simulator = useSimulator(isAuthed);
   const [publisherOpen, setPublisherOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [fifoFlashKey, setFifoFlashKey] = useState<string | null>(null);
   const [ledgerPage, setLedgerPage] = useState(1);
-  const transactionsQuery = useTransactions(ledgerPage);
+  const transactionsQuery = useTransactions(ledgerPage, undefined, isAuthed);
   const selectedProductIdRef = useRef(selectedProductId);
   selectedProductIdRef.current = selectedProductId;
 
@@ -45,17 +46,20 @@ export function DashboardView() {
   const productLabelByIdRef = useRef(productLabelById);
   productLabelByIdRef.current = productLabelById;
 
-  useInventorySocket({
-    onProcessed: (payload) => {
-      addProcessedEvent(payload, productLabelByIdRef.current.get(payload.productId));
-      if (payload.productId === selectedProductIdRef.current) {
-        setFifoFlashKey(`${payload.eventId}-${Date.now()}`);
-      }
+  useInventorySocket(
+    {
+      onProcessed: (payload) => {
+        addProcessedEvent(payload, productLabelByIdRef.current.get(payload.productId));
+        if (payload.productId === selectedProductIdRef.current) {
+          setFifoFlashKey(`${payload.eventId}-${Date.now()}`);
+        }
+      },
+      onFailed: (payload) => {
+        addFailedEvent(payload, productLabelByIdRef.current.get(payload.productId));
+      },
     },
-    onFailed: (payload) => {
-      addFailedEvent(payload, productLabelByIdRef.current.get(payload.productId));
-    },
-  });
+    isAuthed,
+  );
 
   useEffect(() => {
     if (!selectedProductId) return;
