@@ -36,3 +36,9 @@ export class ConflictError extends AppError {
     super(message, 409);
   }
 }
+
+export class InsufficientStockError extends AppError {
+  constructor(message = "Insufficient stock for sale") {
+    super(message, 409);
+  }
+}

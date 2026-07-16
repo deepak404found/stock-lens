@@ -4,7 +4,10 @@ import express from "express";
 import { env } from "../config/env.js";
 import { errorHandler } from "../middleware/error-handler.js";
 import { authRoutes } from "../modules/auth/routes.js";
+import { dashboardRoutes } from "../modules/dashboard/routes.js";
+import { eventsRoutes } from "../modules/events/routes.js";
 import { productsRoutes } from "../modules/products/routes.js";
+import { transactionRoutes } from "../modules/transaction/routes.js";
 import { sendSuccess } from "../shared/api-response.js";
 
 export function createApp() {
@@ -26,6 +29,9 @@ export function createApp() {
   const api = express.Router();
   api.use("/auth", authRoutes);
   api.use("/products", productsRoutes);
+  api.use("/events", eventsRoutes);
+  api.use("/transactions", transactionRoutes);
+  api.use("/dashboard", dashboardRoutes);
   app.use("/api/v1", api);
 
   app.use(errorHandler);
