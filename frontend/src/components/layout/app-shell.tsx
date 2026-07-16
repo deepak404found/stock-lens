@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { LogOut, Package, Play, PlusCircle, Square } from "lucide-react";
+import Image from "next/image";
+import { LogOut, Play, PlusCircle, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { SimulatorStatus } from "@/services/simulator";
@@ -50,18 +51,15 @@ export function AppShell({
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-800">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-900 text-white shadow-md shadow-brand-900/20">
-              <Package className="h-6 w-6" aria-hidden />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xl font-extrabold tracking-tight text-slate-900">
-                STOCK<span className="font-light text-brand-900">LENS</span>
-              </p>
-              <p className="text-[10px] font-semibold tracking-wider text-brand-800 uppercase">
-                Live Warehouse
-              </p>
-            </div>
+          <div className="flex min-w-0 items-center">
+            <Image
+              src="/brand/stocklens-logo.png"
+              alt="StockLens Live Warehouse"
+              width={220}
+              height={48}
+              className="h-10 w-auto object-contain object-left sm:h-11"
+              priority
+            />
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">

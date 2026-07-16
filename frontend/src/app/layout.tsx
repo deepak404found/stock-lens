@@ -11,6 +11,10 @@ const sans = Inter({
 export const metadata: Metadata = {
   title: "StockLens",
   description: "Real-time inventory & FIFO ledger",
+  icons: {
+    icon: [{ url: "/brand/stocklens-icon.png", type: "image/png" }],
+    apple: [{ url: "/brand/stocklens-icon.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
