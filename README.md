@@ -72,9 +72,22 @@ pnpm verify:fifo
 
 ```bash
 cd frontend
-cp .env.example .env.local
+cp .env.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:4000
 pnpm install
-pnpm dev               # http://localhost:3000
+pnpm dev                     # http://localhost:3000
 ```
 
 Open http://localhost:3000/login and sign in with the seed user.
+
+### Phase 3 UI
+
+After login, the dashboard includes:
+
+- **KPI cards** — active products, units on hand, inventory value
+- **Product stock table** — per-SKU quantity and value
+- **Event publisher** — publish `PURCHASE` / `SALE` events
+- **Transaction ledger** — recent processed events
+- **Live activity feed** — Socket.IO updates on `inventory.event.processed`
+- **Streaming status** — Redpanda consumer connection state
+
+Run backend (`pnpm dev` on port 4000) and frontend together for the full live flow.
